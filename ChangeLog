@@ -1,5 +1,16 @@
 2024-11-27  MORIOKA Tomohiko  <tomo.git@chise.org>
 
+	* cid.lisp: Support links.
+	(cbor::encode-alist): Redefine to support IPLD link.
+	(encode-list): To treat list of cons-pairs as alist even if there
+	are no atom value.
+	(decode-base32-cid): New function.
+	(generate-binary-cid): New function.
+	(generate-block-cid): New function.
+	(generate-cid): Use `generate-block-cid'.
+
+2024-11-27  MORIOKA Tomohiko  <tomo.git@chise.org>
+
 	* cl-ipld.asd: New file.
 
 	* package.lisp: New file.
