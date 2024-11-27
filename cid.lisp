@@ -4,6 +4,44 @@
 (require 'ironclad)
 (require 'cbor)
 
+(in-package :cbor)
+
+(defun encode-alist (value output)
+  (declare (type list value)
+           (type memstream output)
+           #.*optimize*)
+  (cond
+    ((equal (caar value) "/")
+     (let ((seq (cl-ipld::generate-binary-cid (cdar value))))
+       (write-tag 6 42 output)
+       (encode-binary seq output))
+     )
+    (t
+     (with-dictionary (output (length value))
+       (loop for (key . val) in value
+             do (%encode key output)
+		(%encode val output))))))
+
+(defun encode-list (value output)
+  (declare (type list value)
+           (type memstream output)
+           #.*optimize*)
+  (cond
+    ((eq 'simple (car value))
+     (write-tag 7 (cdr value) output))
+    ((and *jsown-semantics*
+          (eq :obj (car value)))
+     (encode-alist (cdr value) output))
+    ((and (every #'consp value)
+          ;; (some (lambda (cell)
+          ;;         (not (listp (cdr cell))))
+          ;;       value)
+	  )
+     (encode-alist value output))
+    (t
+     (write-tag 4 (length value) output)
+     (loop for val in value do (%encode val output)))))
+
 (in-package :cl-ipld)
 
 (defun bytes-to-base32-with-no-padding (some-bytes)
@@ -15,12 +53,30 @@
             (cl-base32::encode-word (cl-base32::read-word some-bytes i))))
     base32-string))
 
-(defun generate-cid (data)
-  (let ((cds (ironclad:digest-sequence
-	      :sha256 (cbor:encode data))))
+(defun decode-base32-cid (cid)
+  (let* ((ret (cl-base32:base32-to-bytes (subseq cid 1)))
+	 (len (aref ret 3)))
+    (subseq ret 4 (+ len 4))))
+
+(defun generate-binary-cid (cid)
+  (let ((ret (decode-base32-cid cid)))
+    (concatenate '(vector (unsigned-byte 8))
+		 #(  0 ; raw
+		     1 ; CIDv1
+		   113 ; dag-json
+		    18 ; sha2-256
+		   )
+		 `#(,(length ret))
+		 ret)))
+
+(defun generate-block-cid (block)
+  (let ((cds (ironclad:digest-sequence :sha256 block)))
     (concatenate 'string
 		 "b"
 		 (bytes-to-base32-with-no-padding
 		  (concatenate 'vector
 			       `#(1 #x71 #x12 ,(length cds))
 			       cds)))))
+
+(defun generate-cid (data)
+  (generate-block-cid (cbor:encode data)))
