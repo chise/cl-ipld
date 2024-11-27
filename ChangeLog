@@ -1,0 +1,13 @@
+2024-11-27  MORIOKA Tomohiko  <tomo.git@chise.org>
+
+	* cl-ipld.asd: New file.
+
+	* package.lisp: New file.
+
+	* cid.lisp: New file.
+
+	* README.md: Add descriptions.
+
+2024-11-27  Tomohiko Morioka  <tomo.git@chise.org>
+
+	* README.md: Initial commit
