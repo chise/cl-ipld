@@ -18,7 +18,10 @@
      )
     (t
      (with-dictionary (output (length value))
-       (loop for (key . val) in value
+       (loop for (key . val) in (sort (copy-seq value)
+				      (lambda (a b)
+					(string< (format nil "~a" (car a))
+						 (format nil "~a" (car b)))))
              do (%encode key output)
 		(%encode val output))))))
 
@@ -61,10 +64,10 @@
 (defun base32-cid-to-binary-cid (cid)
   (let ((ret (decode-base32-cid cid)))
     (concatenate '(vector (unsigned-byte 8))
-		 #(  0 ; raw
-		     1 ; CIDv1
-		   113 ; dag-json
-		    18 ; sha2-256
+		 #( #x00 ; raw binary
+		    #x01 ; CIDv1
+		    #x71 ; dag-cbor
+		    #x12 ; sha2-256
 		   )
 		 `#(,(length ret))
 		 ret)))
