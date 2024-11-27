@@ -1,5 +1,10 @@
 2024-11-27  MORIOKA Tomohiko  <tomo.git@chise.org>
 
+	* cid.lisp (encode-alist): Sort by key.
+	(base32-cid-to-binary-cid): Use hex and fix comment.
+
+2024-11-27  MORIOKA Tomohiko  <tomo.git@chise.org>
+
 	* cid.lisp (base32-cid-to-binary-cid): Renamed from
 	`generate-binary-cid'.
 
