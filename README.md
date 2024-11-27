@@ -45,6 +45,6 @@ NIL
 Currently, this package only provides CID generator.
 
 ```
-(ipld-generate-cid '(("Hello" . "world")))
+(ipld:generate-cid '(("Hello" . "world")))
 -> "bafyreienby2jplt24irbffyiswxk2lhnpczmszpy3d2oi7niyaqltexipe"
 ```
