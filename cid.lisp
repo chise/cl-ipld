@@ -12,7 +12,7 @@
            #.*optimize*)
   (cond
     ((equal (caar value) "/")
-     (let ((seq (cl-ipld::generate-binary-cid (cdar value))))
+     (let ((seq (cl-ipld::base32-cid-to-binary-cid (cdar value))))
        (write-tag 6 42 output)
        (encode-binary seq output))
      )
@@ -58,7 +58,7 @@
 	 (len (aref ret 3)))
     (subseq ret 4 (+ len 4))))
 
-(defun generate-binary-cid (cid)
+(defun base32-cid-to-binary-cid (cid)
   (let ((ret (decode-base32-cid cid)))
     (concatenate '(vector (unsigned-byte 8))
 		 #(  0 ; raw
