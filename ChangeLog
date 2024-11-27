@@ -1,5 +1,10 @@
 2024-11-27  MORIOKA Tomohiko  <tomo.git@chise.org>
 
+	* cid.lisp (base32-cid-to-binary-cid): Renamed from
+	`generate-binary-cid'.
+
+2024-11-27  MORIOKA Tomohiko  <tomo.git@chise.org>
+
 	* cid.lisp: Support links.
 	(cbor::encode-alist): Redefine to support IPLD link.
 	(encode-list): To treat list of cons-pairs as alist even if there
