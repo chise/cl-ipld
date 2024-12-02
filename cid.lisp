@@ -54,6 +54,9 @@
      (write-tag 4 (length value) output)
      (loop for val in value do (%encode val output)))))
 
+
+(in-package :cl-ipld)
+
 (defun decode-ipld-link (tag data)
   (cond
     ((eq tag 42)
@@ -62,10 +65,11 @@
     (t
      (error "Unsupported sematic tag ~A" tag))))
 
-(setq *custom-tag-reader* #'decode-ipld-link)
+(defun dCBOR42-decode (data)
+  (let ((cbor:*custom-tag-reader* #'decode-ipld-link)
+	(cbor:*dictionary-format* :alist))
+    (cbor:decode data)))
 
-
-(in-package :cl-ipld)
 
 (defun bytes-to-base32-with-no-padding (some-bytes)
   "Like bytes-to-base32, but return base32 string without padding"
