@@ -1,3 +1,14 @@
+2024-12-02  MORIOKA Tomohiko  <tomo.git@chise.org>
+
+	* cid.lisp (decode-ipld-link): Moved to `cl-ipld' package.
+	(dCBOR42-decode): New function.
+
+2024-12-02  MORIOKA Tomohiko  <tomo.git@chise.org>
+
+	* cid.lisp (encode-alist): Fixed.
+	(decode-ipld-link): New function.
+	(binary-cid-to-base32-cid): New function.
+
 2024-11-27  MORIOKA Tomohiko  <tomo.git@chise.org>
 
 	* cid.lisp (encode-alist): Sort by key.
