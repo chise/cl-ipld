@@ -11,19 +11,28 @@
            (type memstream output)
            #.*optimize*)
   (cond
-    ((equal (caar value) "/")
+    ((or (equal (caar value) "/")
+	 (equal (format nil "~a" (caar value)) "/"))
      (let ((seq (cl-ipld::base32-cid-to-binary-cid (cdar value))))
        (write-tag 6 42 output)
        (encode-binary seq output))
      )
     (t
-     (with-dictionary (output (length value))
-       (loop for (key . val) in (sort (copy-seq value)
-				      (lambda (a b)
-					(string< (format nil "~a" (car a))
-						 (format nil "~a" (car b)))))
-             do (%encode key output)
-		(%encode val output))))))
+     (let ((sv (sort
+		(mapcar (lambda (cell)
+			  (cons (format nil "~a" (car cell))
+				(cdr cell)))
+			value)
+	    	(lambda (a b)
+		  (or (< (length (car a))
+			 (length (car b)))
+		      (and (= (length (car a))
+			      (length (car b)))
+			   (string< (car a)(car b))))))))
+       (with-dictionary (output (length value))
+	 (loop for (key . val) in sv
+               do (%encode key output)
+		  (%encode val output)))))))
 
 (defun encode-list (value output)
   (declare (type list value)
@@ -44,6 +53,17 @@
     (t
      (write-tag 4 (length value) output)
      (loop for val in value do (%encode val output)))))
+
+(defun decode-ipld-link (tag data)
+  (cond
+    ((eq tag 42)
+     (list (cons "/" (ipld::binary-cid-to-base32-cid data)))
+     )
+    (t
+     (error "Unsupported sematic tag ~A" tag))))
+
+(setq *custom-tag-reader* #'decode-ipld-link)
+
 
 (in-package :cl-ipld)
 
@@ -71,6 +91,11 @@
 		   )
 		 `#(,(length ret))
 		 ret)))
+
+(defun binary-cid-to-base32-cid (binary-cid)
+  (concatenate 'string "b"
+	       (ipld::bytes-to-base32-with-no-padding
+		(subseq binary-cid 1))))
 
 (defun generate-block-cid (block)
   (let ((cds (ironclad:digest-sequence :sha256 block)))
